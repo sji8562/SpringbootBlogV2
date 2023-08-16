@@ -68,6 +68,14 @@ public class UserController {
         return "redirect:/";
     }
 
+    //브라우저 GET /logout 요청을 함(request)
+    //서버는 / 주소를 응답의 헤더에 담음 (Location), 상태코드 302
+    //브라우전
+    @GetMapping("/logout")
+    public String logout(){
+        session.invalidate();
+        return "redirect:/";
+    }
 
 
 }

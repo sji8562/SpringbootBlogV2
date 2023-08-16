@@ -4,18 +4,21 @@ import java.sql.Timestamp;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.CreationTimestamp;
 
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import net.bytebuddy.dynamic.TypeResolutionStrategy.Lazy;
 import shop.mtcoding.blogv2.user.User;
 
 @NoArgsConstructor
@@ -33,8 +36,9 @@ public class Board {
     @Column(nullable = true, length = 10000)
     private String content;
 
-    @ManyToOne
-    private User user;
+//    @JsonIgnore
+    @ManyToOne(fetch = FetchType.EAGER)
+    private User user; // 1+N
 
     @CreationTimestamp
     private Timestamp createdAt;
