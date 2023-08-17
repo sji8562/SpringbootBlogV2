@@ -37,7 +37,7 @@ public class Board {
     private String content;
 
 //    @JsonIgnore
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     private User user; // 1+N
 
     @CreationTimestamp

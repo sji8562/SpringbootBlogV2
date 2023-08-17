@@ -1,16 +1,16 @@
 package shop.mtcoding.blogv2.board;
 
+import java.io.IOException;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
 public class BoardController {
@@ -47,5 +47,34 @@ public class BoardController {
     public String save(BoardRequest.SaveDTO saveDTO) {
         boardService.글쓰기(saveDTO, 1);
         return "redirect:/";
+    }
+
+    @GetMapping("/board/{id}")
+    public String detail(@PathVariable Integer id, Model model){
+
+        Board board = boardService.상세보기(id);
+        model.addAttribute("board",board);
+        return "board/detail";
+    }
+
+    @GetMapping("/board/{id}/delete")
+    public void delete(@PathVariable Integer id, HttpServletResponse response) throws IOException {
+        boardService.삭제(id);
+        response.sendRedirect("/");
+    }
+
+    @GetMapping("/board/{id}/updateForm")
+    public String updateForm(@PathVariable Integer id,HttpServletRequest request){
+        Board board = boardService.업데이트보기(id);
+        request.setAttribute("board", board);
+        return "/board/updateForm";
+    }
+
+
+    @PostMapping("/board/{id}/update")
+    public void update(@PathVariable Integer id, BoardRequest.UpdateDTO updateDTO,HttpServletResponse response) throws IOException {
+        boardService.업데이트(id, updateDTO);
+
+        response.sendRedirect("/board/"+id);
     }
 }
