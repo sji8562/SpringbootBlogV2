@@ -1,4 +1,4 @@
-package shop.mtcoding.blogv2._core.utill;
+package shop.mtcoding.blogv2._core.util;
 
 public class Script {
     //경고장 + 뒤로가기

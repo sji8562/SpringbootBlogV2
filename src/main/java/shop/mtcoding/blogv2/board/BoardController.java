@@ -1,16 +1,20 @@
 package shop.mtcoding.blogv2.board;
 
-import java.io.IOException;
-import java.util.List;
-
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import shop.mtcoding.blogv2._core.util.Script;
+
+import java.util.List;
+
 
 @Controller
 public class BoardController {
@@ -18,15 +22,55 @@ public class BoardController {
     @Autowired
     private BoardService boardService;
 
+    @Autowired
+    private BoardRepository boardRepository;
+
+    @PostMapping("/board/{id}/update")
+    public String update(@PathVariable Integer id, BoardRequest.UpdateDTO updateDTO) {
+        // where 데이터, body, session값
+        boardService.게시글수정하기(id, updateDTO);
+        return "redirect:/board/" + id;
+    }
+
+    @GetMapping("/board/{id}/updateForm")
+    public String updateForm(@PathVariable Integer id, Model model) {
+        Board board = boardService.상세보기(id);
+        model.addAttribute("board", board); // request에 담는 것과 동일
+        return "board/updateForm";
+    }
+
+    @PostMapping("/board/{id}/delete")
+    public @ResponseBody String delete(@PathVariable Integer id) {
+        boardService.삭제하기(id);
+        return Script.href("/");
+    }
+
+    @GetMapping("/board/{id}")
+    public String detail(@PathVariable Integer id, Model model) {
+        Board board = boardService.상세보기(id);
+        model.addAttribute("board", board);
+        return "board/detail";
+    }
+
     // localhost:8080?page=1&keyword=바나나
-    @GetMapping("/")
-    public String index(@RequestParam(defaultValue = "0") Integer page, HttpServletRequest request) {
-        Page<Board> boardPG = boardService.게시글목록보기(page);
+    @GetMapping({"/", "/board"})
+    public String index( @RequestParam(defaultValue = "0") Integer page,@RequestParam(defaultValue = "") String keyword, HttpServletRequest request) {
+        System.out.println("테스트 :"+keyword);
+        Page<Board> boardPG = null;
+        request.setAttribute("keyword", keyword);
+        if(keyword.isBlank()){
+            boardPG = boardService.게시글목록보기(page);
+        }else{
+            boardPG = boardService.게시글목록보기(page,keyword);
+        }
+
         request.setAttribute("boardPG", boardPG);
-        request.setAttribute("prevPage", boardPG.getNumber()-1);
-        request.setAttribute("nextPage", boardPG.getNumber()+1);
+        request.setAttribute("prevPage", boardPG.getNumber() - 1);
+        request.setAttribute("nextPage", boardPG.getNumber() + 1);
+
         return "index";
     }
+
     @GetMapping("/test")
     public @ResponseBody Page<Board> test(@RequestParam(defaultValue = "0") Integer page, HttpServletRequest request) {
         Page<Board> boardPG = boardService.게시글목록보기(page);
@@ -49,32 +93,10 @@ public class BoardController {
         return "redirect:/";
     }
 
-    @GetMapping("/board/{id}")
-    public String detail(@PathVariable Integer id, Model model){
-
-        Board board = boardService.상세보기(id);
-        model.addAttribute("board",board);
+    @GetMapping("/test/board/{id}")
+    public @ResponseBody String testDetail(@PathVariable Integer id) {
+        Board board = boardRepository.mFindByIdJoinRepliesinUser(id).get();
         return "board/detail";
     }
 
-    @GetMapping("/board/{id}/delete")
-    public void delete(@PathVariable Integer id, HttpServletResponse response) throws IOException {
-        boardService.삭제(id);
-        response.sendRedirect("/");
-    }
-
-    @GetMapping("/board/{id}/updateForm")
-    public String updateForm(@PathVariable Integer id,HttpServletRequest request){
-        Board board = boardService.업데이트보기(id);
-        request.setAttribute("board", board);
-        return "/board/updateForm";
-    }
-
-
-    @PostMapping("/board/{id}/update")
-    public void update(@PathVariable Integer id, BoardRequest.UpdateDTO updateDTO,HttpServletResponse response) throws IOException {
-        boardService.업데이트(id, updateDTO);
-
-        response.sendRedirect("/board/"+id);
-    }
 }

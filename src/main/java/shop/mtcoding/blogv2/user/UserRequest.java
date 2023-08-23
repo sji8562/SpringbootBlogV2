@@ -2,6 +2,7 @@ package shop.mtcoding.blogv2.user;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.web.multipart.MultipartFile;
 
 public class UserRequest {
 
@@ -10,6 +11,7 @@ public class UserRequest {
         private String username;
         private String password;
         private String email;
+        private MultipartFile pic;
     }
 
     @Getter @Setter

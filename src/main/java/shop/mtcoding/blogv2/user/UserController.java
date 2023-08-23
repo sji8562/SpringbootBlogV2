@@ -5,8 +5,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
-import shop.mtcoding.blogv2._core.utill.Script;
+import shop.mtcoding.blogv2._core.error.ex.MyApiException;
+import shop.mtcoding.blogv2._core.util.ApiUtil;
+import shop.mtcoding.blogv2._core.util.Script;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -29,9 +32,13 @@ public class UserController {
 
     //M - V - C
     @PostMapping("/join")
-    public void join(UserRequest.JoinDTO joinDTO, HttpServletResponse response) throws IOException {
+    public String join(UserRequest.JoinDTO joinDTO) {
+        // System.out.println(joinDTO.getPic().getOriginalFilename());
+        // System.out.println(joinDTO.getPic().getSize());
+        // System.out.println(joinDTO.getPic().getContentType());
+
         userService.회원가입(joinDTO);
-        response.sendRedirect("/loginForm");
+        return "user/loginForm"; // persist 초기화
     }
 
     @GetMapping("/loginForm")
@@ -42,10 +49,6 @@ public class UserController {
     @PostMapping("/login")
     public @ResponseBody String join(UserRequest.LoginDTO loginDTO, HttpServletResponse response) throws IOException {
         User sessionUser = userService.로그인(loginDTO);
-        if(sessionUser == null){
-            return Script.back("로그인실패");
-        }
-
         session.setAttribute("sessionUser",sessionUser);
         return Script.href("/");
     }
@@ -77,5 +80,13 @@ public class UserController {
         return "redirect:/";
     }
 
-
+    @GetMapping("/api/check")
+    public @ResponseBody ApiUtil<String> check(String username) {
+        User user = userService.중복체크(username);
+        if (user == null) {
+            return new ApiUtil<>(true, "사용가능 아이디");
+        } else {
+            return new ApiUtil<>(false, "이미 사용중인 아이디입니다");
+        }
+    }
 }

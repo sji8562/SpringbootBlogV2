@@ -4,9 +4,9 @@
 <div class="container p-5">
 
     <div class="mb-2 d-flex justify-content-end">
-        <form class="d-flex" action="#">
+        <form class="d-flex">
             <input id="keyword" class="form-control me-2" type="text" name="keyword" placeholder="Search" required>
-            <button class="btn btn-primary" type="submit">Search</button>
+            <button class="btn btn-primary" type="button" onclick="searching()">Search</button>
         </form>
     </div>
 
@@ -21,12 +21,54 @@
 
 
     <!--disabled-->
-    <ul class="pagination d-flex justify-content-center">
-        <li class="page-item {{#boardPG.first}}disabled{{/boardPG.first}}"><a class="page-link"
-                                                                              href="?page={{prevPage}}">Previous</a></li>
-        <li class="page-item {{#boardPG.last}}disabled{{/boardPG.last}}"><a class="page-link" href="?page={{nextPage}}">Next</a></li>
-    </ul>
-
+    {{#keyword}}
+        <ul class="pagination d-flex justify-content-center">
+            <li class="page-item {{#boardPG.first}}disabled{{/boardPG.first}}"><a class="page-link"
+                                                                                  href="?keyword={{keyword}}&page={{prevPage}}">Previous</a>
+            </li>
+            <li class="page-item {{#boardPG.last}}disabled{{/boardPG.last}}"><a class="page-link"
+                                                                                href="?keyword={{keyword}}&page={{nextPage}}">Next</a></li>
+        </ul>
+    {{/keyword}}
+    {{^keyword}}
+        <ul class="pagination d-flex justify-content-center">
+            <li class="page-item {{#boardPG.first}}disabled{{/boardPG.first}}"><a class="page-link"
+                                                                                  href="?page={{prevPage}}">Previous</a>
+            </li>
+            <li class="page-item {{#boardPG.last}}disabled{{/boardPG.last}}"><a class="page-link"
+                                                                                href="?page={{nextPage}}">Next</a></li>
+        </ul>
+    {{/keyword}}
 </div>
+<script>
+    async function searching() {
+        // 1. DOM으로 부터 값 가져오기
+        let keyword = document.querySelector("#keyword").value;
+        console.log("키워드", keyword);
+        // 2. 통신하기
+        let response = await fetch(`/board?keyword=${keyword}`, {
+            method: "get",
+            headers: {
+                "Content-Type": "application/json"
+            },
+        });
+        console.log(response);
+        // 3. 파싱하기
+        let responseBody = await response.json(); // response.json();
+        console.log(responseBody);
+        // 4. 상태코드 확인
+        // let btnJoin = document.querySelector("#btnJoin");
+        // if (responseBody.sucuess) {
+        //     console.log(responseBody);
+            // usernameSameCheck = true;
+            // btnJoin.removeAttribute("disabled");
+
+        // } else {
+        //     alert(responseBody.data);
+            // usernameSameCheck = false;
+            // btnJoin.setAttribute("disabled", "disabled");
+        // }
+    }
+</script>
 
 {{> layout/footer}}
